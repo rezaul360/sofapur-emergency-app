@@ -17,6 +17,7 @@ interface SideDrawerProps {
   onClose: () => void;
   userName: string;
   navigation: any;
+  onAdminPress: () => void; // 🟢 প্রপ্স টাইপ নিশ্চিত করা হলো
 }
 
 export default function SideDrawer({
@@ -24,6 +25,7 @@ export default function SideDrawer({
   onClose,
   userName,
   navigation,
+  onAdminPress, // 🟢 এখানে প্রপ্সটি রিসিভ করা হলো
 }: SideDrawerProps) {
   const slideAnim = useRef(new Animated.Value(-screenWidth)).current;
 
@@ -68,7 +70,7 @@ export default function SideDrawer({
             { transform: [{ translateX: slideAnim }] },
           ]}
         >
-          {/* হেডার */}
+          {/* হেডার পার্ট */}
           <View style={styles.header}>
             <View>
               <Text style={styles.headerTitle}>সফাপুর সেবা</Text>
@@ -79,7 +81,7 @@ export default function SideDrawer({
             </TouchableOpacity>
           </View>
 
-          {/* ইউজার প্রোফাইল কার্ড */}
+          {/* ডাইনামিক ইউজার প্রোফাইল কার্ড */}
           <View style={styles.profileCard}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{firstLetter}</Text>
@@ -99,7 +101,6 @@ export default function SideDrawer({
               <Text style={styles.menuItemTextActive}>মূল পাতা</Text>
             </TouchableOpacity>
 
-            {/* 🟢 অ্যাপ ব্যবহার নির্দেশিকা অ্যাকশন যুক্ত করা হলো */}
             <TouchableOpacity
               style={styles.menuItem}
               onPress={() => {
@@ -132,9 +133,10 @@ export default function SideDrawer({
             </View>
           </View>
 
-          {/* ফুটার */}
+          {/* ফুটার - সুপার অ্যাডমিন লগইন */}
           <View style={styles.footer}>
-            <TouchableOpacity style={styles.adminButton}>
+            {/* 🟢 এখানে onPress={onAdminPress} যুক্ত করে দেওয়া হলো */}
+            <TouchableOpacity style={styles.adminButton} onPress={onAdminPress}>
               <Ionicons
                 name="key-outline"
                 size={16}
@@ -143,6 +145,12 @@ export default function SideDrawer({
               />
               <Text style={styles.adminButtonText}>সুপার অ্যাডমিন লগইন</Text>
             </TouchableOpacity>
+
+            {/* ডেভেলপমেন্ট ক্রেডিট */}
+            <View style={styles.creditContainer}>
+              <Ionicons name="construct-outline" size={13} color="#64748b" />
+              <Text style={styles.creditText}>ডেভেলপড বাই সফাপুর আইটি</Text>
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -234,7 +242,12 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   menuItemTextDisabled: { color: "#64748b", fontSize: 14, marginLeft: 12 },
-  footer: { padding: 20, borderTopWidth: 1, borderTopColor: "#1e293b" },
+  footer: {
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#1e293b",
+    alignItems: "center",
+  },
   adminButton: {
     flexDirection: "row",
     justifyContent: "center",
@@ -242,6 +255,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#1e293b",
     padding: 12,
     borderRadius: 20,
+    width: "100%",
+    marginBottom: 12,
   },
   adminButtonText: { color: "#fff", fontSize: 14, fontWeight: "600" },
+  creditContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  creditText: {
+    color: "#64748b",
+    fontSize: 12,
+    marginLeft: 6,
+    fontWeight: "500",
+  },
 });

@@ -2,6 +2,16 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { globalStyles } from "./styles/globalStyles";
 
+// 🟢 TypeScript এর জন্য প্রপ্স টাইপ নির্ধারণ করা হলো
+interface LoginModalProps {
+  show: boolean;
+  name: string;
+  setName: (text: string) => void;
+  phone: string;
+  setPhone: (text: string) => void;
+  onLogin: () => void;
+}
+
 export default function LoginModal({
   show,
   name,
@@ -9,7 +19,7 @@ export default function LoginModal({
   phone,
   setPhone,
   onLogin,
-}) {
+}: LoginModalProps) {
   if (!show) return null;
 
   return (
