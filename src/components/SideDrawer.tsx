@@ -17,7 +17,7 @@ interface SideDrawerProps {
   onClose: () => void;
   userName: string;
   navigation: any;
-  onAdminPress: () => void; // 🟢 প্রপ্স টাইপ নিশ্চিত করা হলো
+  onAdminPress: () => void;
 }
 
 export default function SideDrawer({
@@ -25,7 +25,7 @@ export default function SideDrawer({
   onClose,
   userName,
   navigation,
-  onAdminPress, // 🟢 এখানে প্রপ্সটি রিসিভ করা হলো
+  onAdminPress,
 }: SideDrawerProps) {
   const slideAnim = useRef(new Animated.Value(-screenWidth)).current;
 
@@ -81,8 +81,14 @@ export default function SideDrawer({
             </TouchableOpacity>
           </View>
 
-          {/* ডাইনামিক ইউজার প্রোফাইল কার্ড */}
-          <View style={styles.profileCard}>
+          {/* 🟢 আপডেট করা প্রোফাইল কার্ড - প্রোফাইল স্ক্রিনে নেভিগেট করবে */}
+          <TouchableOpacity
+            style={styles.profileCard}
+            onPress={() => {
+              onClose();
+              navigation.navigate("Profile");
+            }}
+          >
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{firstLetter}</Text>
             </View>
@@ -90,9 +96,9 @@ export default function SideDrawer({
               <Text style={styles.profileName}>
                 {userName.trim() || "নাগরিক ইউজার"}
               </Text>
-              <Text style={styles.profileRole}>নাগরিক ইউজার</Text>
+              <Text style={styles.profileRole}>নাগরিক ইউজার ➔</Text>
             </View>
-          </View>
+          </TouchableOpacity>
 
           {/* মেনু আইটেমসমূহ */}
           <View style={styles.menuList}>
@@ -111,31 +117,10 @@ export default function SideDrawer({
               <Ionicons name="book-outline" size={20} color="#94a3b8" />
               <Text style={styles.menuItemText}>অ্যাপ ব্যবহার নির্দেশিকা</Text>
             </TouchableOpacity>
-
-            <Text style={styles.sectionTitle}>ভবিষ্যতের নতুন ফিচারসমূহ</Text>
-
-            <View style={styles.menuItemDisabled}>
-              <Ionicons name="leaf-outline" size={20} color="#475569" />
-              <Text style={styles.menuItemTextDisabled}>
-                কৃষি পরামর্শ ফোরাম (আসন্ন)
-              </Text>
-            </View>
-
-            <View style={styles.menuItemDisabled}>
-              <Ionicons
-                name="document-text-outline"
-                size={20}
-                color="#475569"
-              />
-              <Text style={styles.menuItemTextDisabled}>
-                অনলাইনে ইউপি সনদ ফরম (আসন্ন)
-              </Text>
-            </View>
           </View>
 
           {/* ফুটার - সুপার অ্যাডমিন লগইন */}
           <View style={styles.footer}>
-            {/* 🟢 এখানে onPress={onAdminPress} যুক্ত করে দেওয়া হলো */}
             <TouchableOpacity style={styles.adminButton} onPress={onAdminPress}>
               <Ionicons
                 name="key-outline"
@@ -146,7 +131,6 @@ export default function SideDrawer({
               <Text style={styles.adminButtonText}>সুপার অ্যাডমিন লগইন</Text>
             </TouchableOpacity>
 
-            {/* ডেভেলপমেন্ট ক্রেডিট */}
             <View style={styles.creditContainer}>
               <Ionicons name="construct-outline" size={13} color="#64748b" />
               <Text style={styles.creditText}>ডেভেলপড বাই সফাপুর আইটি</Text>
@@ -227,21 +211,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   menuItemText: { color: "#94a3b8", fontSize: 15, marginLeft: 12 },
-  sectionTitle: {
-    color: "#475569",
-    fontSize: 12,
-    fontWeight: "bold",
-    marginTop: 15,
-    marginBottom: 12,
-    paddingLeft: 4,
-  },
-  menuItemDisabled: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    opacity: 0.6,
-  },
-  menuItemTextDisabled: { color: "#64748b", fontSize: 14, marginLeft: 12 },
   footer: {
     padding: 20,
     borderTopWidth: 1,

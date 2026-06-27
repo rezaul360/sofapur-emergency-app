@@ -8,12 +8,22 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+// 🟢 প্রপস ইন্টারফেস যোগ করা হলো নেভিগেশন হ্যান্ডেল করার জন্য
+interface HeaderSectionProps {
+  animatedValue: any;
+  noticeText: string;
+  onMenuPress: () => void;
+  userName: string;
+  navigation: any; // নেভিগেশন প্রপ্স
+}
+
 export default function HeaderSection({
   animatedValue,
   noticeText,
   onMenuPress,
   userName,
-}: any) {
+  navigation,
+}: HeaderSectionProps) {
   return (
     <View style={styles.headerMainWrapper}>
       {/* নোটিশ বোর্ড সেকশন */}
@@ -31,17 +41,23 @@ export default function HeaderSection({
         </Animated.Text>
       </View>
 
-      {/* 🟢 নতুন কাস্টম হেডার বার (Screenshot_1 অনুযায়ী) */}
+      {/* কাস্টম হেডার বার */}
       <View style={styles.topAppBar}>
         <TouchableOpacity onPress={onMenuPress} style={styles.iconButton}>
           <Ionicons name="menu" size={28} color="#ffffff" />
         </TouchableOpacity>
+
         <Text style={styles.appTitle}>সফাপুর ইউপি জরুরী সেবা</Text>
-        <View style={styles.smallAvatar}>
+
+        {/* 🟢 প্রোফাইল আইকনে ক্লিক ইভেন্ট যুক্ত করা হলো */}
+        <TouchableOpacity
+          style={styles.smallAvatar}
+          onPress={() => navigation.navigate("Profile")}
+        >
           <Text style={styles.smallAvatarText}>
-            {userName ? userName[0].toLowerCase() : "u"}
+            {userName && userName.length > 0 ? userName[0].toUpperCase() : "u"}
           </Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       {/* সাব হেডার ব্যানার */}
@@ -92,14 +108,16 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   iconButton: { padding: 4 },
-  appTitle: { color: "#fff", fontSize: 20, fontWeight: "bold" },
+  appTitle: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   smallAvatar: {
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,255,255,0.3)",
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.5)",
   },
   smallAvatarText: { color: "#fff", fontSize: 15, fontWeight: "bold" },
   bannerSection: { alignItems: "center", marginTop: 25, paddingHorizontal: 20 },

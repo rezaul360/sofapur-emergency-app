@@ -7,20 +7,21 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // 📦 গ্লোবাল রিসোর্স এবং কাস্টম কম্পোনেন্টসমূহ
 import { globalStyles } from "./src/components/styles/globalStyles";
 import LoginModal from "./src/components/LoginModal";
-import AdminLoginModal from "./src/components/AdminLoginModal"; // 🟢 নতুন অ্যাডমিন মডাল ইমপোর্ট
+import AdminLoginModal from "./src/components/AdminLoginModal";
 import HeaderSection from "./src/components/HeaderSection";
 import SearchBarSection from "./src/components/SearchBarSection";
 import GridOrListSection from "./src/components/GridOrListSection";
 import SideDrawer from "./src/components/SideDrawer";
 import { categories } from "./src/components/contactsData";
-import GuideScreen from "./src/screens/GuideScreen";
 
-// 🖥️ স্ক্রিনসমূহ ইমপোর্ট করুন
+// 🖥️ স্ক্রিনসমূহ
+import GuideScreen from "./src/screens/GuideScreen";
 import DetailsScreen from "./src/screens/DetailsScreen";
 import ComplaintScreen from "./src/screens/ComplaintScreen";
 import LinksScreen from "./src/screens/LinksScreen";
+import ProfileScreen from "./src/screens/ProfileScreen"; // 🟢 প্রোফাইল স্ক্রিন ইমপোর্ট
 
-// 🪝 কাস্টম হুক ইমপোর্ট করুন
+// 🪝 কাস্টম হুক
 import useHomeScreen from "./src/hooks/useHomeScreen";
 
 const makeCall = (phoneNumber: string) => {
@@ -41,18 +42,20 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
+      {/* 🟢 Stack.Navigator এর ভেতরেই সব স্ক্রিন থাকতে হবে */}
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
         <Stack.Screen name="Complaint" component={ComplaintScreen} />
         <Stack.Screen name="Links" component={LinksScreen} />
         <Stack.Screen name="Guide" component={GuideScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
-// 🏠 মূল হোম স্ক্রিন পার্ট
+// 🏠 মূল হোম স্ক্রিন
 function HomeScreen({ navigation }: any) {
   const {
     searchQuery,
@@ -70,7 +73,6 @@ function HomeScreen({ navigation }: any) {
     setShowDrawer,
   } = useHomeScreen();
 
-  // 🟢 অ্যাডমিন লগইন মডাল দেখানোর জন্য স্টেট
   const [showAdminModal, setShowAdminModal] = useState(false);
 
   const handleAdminSuccess = () => {
@@ -82,12 +84,12 @@ function HomeScreen({ navigation }: any) {
     <SafeAreaView style={globalStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#059669" />
 
-      {/* হ্যামবার্গার মেনুসহ হেডার */}
       <HeaderSection
         animatedValue={animatedValue}
         noticeText={noticeText}
         onMenuPress={() => setShowDrawer(true)}
         userName={userName}
+        navigation={navigation}
       />
 
       <ScrollView style={globalStyles.scrollView} bounces={false}>
@@ -105,19 +107,17 @@ function HomeScreen({ navigation }: any) {
         />
       </ScrollView>
 
-      {/* 🎛️ সাইডবার ড্রয়ার মেনু */}
       <SideDrawer
         show={showDrawer}
         onClose={() => setShowDrawer(false)}
         userName={userName}
         navigation={navigation}
         onAdminPress={() => {
-          setShowDrawer(false); // প্রথমে সাইডবার ড্রয়ারটি বন্ধ হবে
-          setShowAdminModal(true); // তারপর অ্যাডমিন পিন মডালটি ওপেন হবে
+          setShowDrawer(false);
+          setShowAdminModal(true);
         }}
       />
 
-      {/* 🔐 স্বাগতম লগইন মডাল */}
       <LoginModal
         show={showLoginModal}
         name={userName}
@@ -127,7 +127,6 @@ function HomeScreen({ navigation }: any) {
         onLogin={handleModalLogin}
       />
 
-      {/* 🔑 অ্যাডমিন যাচাইকরণ পিন মডাল */}
       <AdminLoginModal
         show={showAdminModal}
         onClose={() => setShowAdminModal(false)}
