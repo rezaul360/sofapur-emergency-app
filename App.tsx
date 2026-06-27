@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  StyleSheet,
   Text,
   View,
   ScrollView,
@@ -16,6 +15,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+// 📦 আমাদের গ্লোবাল স্টাইল এবং আলাদা করা কাস্টম কম্পোনেন্টসমূহ
+import { globalStyles } from "./src/components/styles/globalStyles";
+import LoginModal from "./src/components/LoginModal";
+import HeaderSection from "./src/components/HeaderSection";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -101,7 +105,7 @@ const contactsData: {
       sub: "পুলিশ, ফায়ার সার্ভিস ও অ্যাম্বুলেন্স",
     },
     {
-      name: "সরকারি তথ্য ও সেবা (333)",
+      name: "सरकारी তথ্য ও সেবা (333)",
       phone: "333",
       sub: "যেকোনো সামাজিক তথ্য",
     },
@@ -135,16 +139,15 @@ const contactsData: {
     {
       name: "মো: শফিকুল ইসলাম",
       phone: "01711556677",
-      sub: "১ নং ওয়ার্ড (সফাপুর গ্রাম)",
+      sub: "১ নং ওয়ানড (সফাপুর গ্রাম)",
       designation: "ইউপি মেম্বার",
     },
   ],
 };
 
-// 🌐 সরকারি গুরুত্বপূর্ণ লিঙ্কের ডেটাবেজ
 const importantLinks = [
   {
-    title: "অনলাইন জন্ম-মৃত্যু নিবন্ধন",
+    title: "অনлайн জন্ম-মৃত্যু নিবন্ধন",
     sub: "জন্ম নিবন্ধন আবেদন ও যাচাই পোর্টাল",
     url: "https://bdris.gov.bd/",
   },
@@ -154,7 +157,7 @@ const importantLinks = [
     url: "https://services.nidw.gov.bd/",
   },
   {
-    title: "অনলাইন ই-পাসপোর্ট আবেদন",
+    title: "অনлайн ই-পাসপোর্ট আবেদন",
     sub: "পাসপোর্ট স্ট্যাটাস ও নতুন আবেদন",
     url: "https://www.epassport.gov.bd/",
   },
@@ -170,10 +173,9 @@ const importantLinks = [
   },
 ];
 
-// ক্যাটাগরি লিস্ট (১০ নম্বর বাটন হিসেবে লিংক যুক্ত করা হয়েছে)
 const categories = [
   { id: "1", title: "হাসপাতাল ও ডাক্তার", icon: "medical", color: "#ef4444" },
-  { id: "2", title: "থানা ও পুলিশ", icon: "shield-half", color: "#3b82f6" },
+  { id: "2", title: "থানা ও police", icon: "shield-half", color: "#3b82f6" },
   { id: "3", title: "ফায়ার সার্ভিস", icon: "flame", color: "#f97316" },
   { id: "4", title: "অ্যাম্বুলেন্স", icon: "bus", color: "#10b981" },
   { id: "5", title: "পল্লী বিদ্যুৎ", icon: "flash", color: "#eab308" },
@@ -196,7 +198,7 @@ const categories = [
     title: "গুরুত্বপূর্ণ লিঙ্কসমূহ",
     icon: "globe",
     color: "#0d9488",
-  }, // 🌐 নতুন বাটন
+  },
 ];
 
 const bloodGroups = ["সব", "A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
@@ -214,7 +216,6 @@ const makeCall = (phoneNumber: string) => {
     .catch((err) => console.error("Call Error:", err));
 };
 
-// 🌐 ওয়েবসাইট লিঙ্ক ওপেন করার ফাংশন
 const openWebsite = (url: string) => {
   Linking.canOpenURL(url)
     .then((supported) => {
@@ -245,8 +246,12 @@ export default function App() {
 // 🏠 ১. হোম স্ক্রিন কম্পোনেন্ট
 function HomeScreen({ navigation }: any) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(true);
+  const [userName, setUserName] = useState("");
+  const [userPhone, setUserPhone] = useState("");
+
   const noticeText =
-    "📢 বিশেষ বিজ্ঞপ্তি: আগামী রবিবার সফাপুর ইউনিয়ন স্বাস্থ্য কেন্দ্রে বিনামূল্যে চক্ষু ক্যাম্প অনুষ্ঠিত হবে।grid জরুরী প্রয়োজনে সরাসরি কল করুন।";
+    "📢 বিশেষ বিজ্ঞপ্তি: আগামী রবিবার সফাপুর ইউনিয়ন স্বাস্থ্য কেন্দ্রে বিনামূল্যে চক্ষু ক্যাম্প অনুষ্ঠিত হবে। জরুরী প্রয়োজনে সরাসরি কল করুন।";
   const animatedValue = useRef(new Animated.Value(screenWidth)).current;
 
   useEffect(() => {
@@ -261,7 +266,19 @@ function HomeScreen({ navigation }: any) {
     startAnimation();
   }, [animatedValue]);
 
-  const getFilteredContacts = () => {
+  const handleModalLogin = () => {
+    if (!userName.trim()) {
+      Alert.alert("ত্রুটি", "অনুগ্রহ করে আপনার নাম লিখুন।");
+      return;
+    }
+    setShowLoginModal(false);
+    Alert.alert(
+      "স্বাগতম",
+      `${userName}, সফাপুর ইউপি ইমার্জেন্সি সেবা অ্যাপে আপনাকে স্বাগতম!`,
+    );
+  };
+
+  const filteredContacts = (() => {
     if (!searchQuery.trim()) return [];
     let allContacts: { name: string; phone: string; sub?: string }[] = [];
     Object.values(contactsData).forEach((list) => {
@@ -272,49 +289,26 @@ function HomeScreen({ navigation }: any) {
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.phone.includes(searchQuery),
     );
-  };
-
-  const filteredContacts = getFilteredContacts();
+  })();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={globalStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#059669" />
 
-      {/* নোটিশ বোর্ড */}
-      <View style={styles.noticeContainer}>
-        <View style={styles.noticeLabel}>
-          <Text style={styles.noticeLabelText}>ঘোষণা</Text>
-        </View>
-        <View style={styles.noticeScrollArea}>
-          <Animated.View style={{ transform: [{ translateX: animatedValue }] }}>
-            <Text numberOfLines={1} style={styles.noticeText}>
-              {noticeText}
-            </Text>
-          </Animated.View>
-        </View>
-      </View>
+      <HeaderSection animatedValue={animatedValue} noticeText={noticeText} />
 
-      <ScrollView style={styles.scrollView} bounces={false}>
-        {/* হেডার পার্ট */}
-        <View style={styles.headerContainer}>
-          <Text style={styles.subTitle}>গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</Text>
-          <Text style={styles.mainTitle}>সফাপুর ইউ পি ইমার্জেন্সি সেবা</Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>জরুরী যোগাযোগ ডিরেক্টরি</Text>
-          </View>
-        </View>
-
+      <ScrollView style={globalStyles.scrollView} bounces={false}>
         {/* সার্চ বার পার্ট */}
-        <View style={styles.searchSection}>
-          <View style={styles.searchContainer}>
+        <View style={globalStyles.searchSection}>
+          <View style={globalStyles.searchContainer}>
             <Ionicons
               name="search-outline"
               size={20}
               color="#64748b"
-              style={styles.searchIcon}
+              style={globalStyles.searchIcon}
             />
             <TextInput
-              style={styles.input}
+              style={globalStyles.input}
               placeholder="নাম বা মোবাইল নম্বর লিখে খুঁজুন..."
               placeholderTextColor="#94a3b8"
               value={searchQuery}
@@ -331,43 +325,43 @@ function HomeScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* গ্রিড সেকশন */}
+        {/* গ্রিড বা লিস্ট সেকশন */}
         {searchQuery.trim().length > 0 ? (
-          <View style={styles.listSection}>
-            <Text style={styles.sectionTitle}>অনুসন্ধানের ফলাফল</Text>
+          <View style={globalStyles.listSection}>
+            <Text style={globalStyles.sectionTitle}>অনুসন্ধানের ফলাফল</Text>
             {filteredContacts.length === 0 ? (
-              <Text style={styles.emptyText}>
+              <Text style={globalStyles.emptyText}>
                 কোনো নম্বর খুঁজে পাওয়া যায়নি!
               </Text>
             ) : (
               filteredContacts.map((contact, idx) => (
-                <View key={idx} style={styles.contactCard}>
-                  <View style={styles.contactInfo}>
-                    <Text style={styles.contactName}>{contact.name}</Text>
-                    <Text style={styles.contactPhone}>
+                <View key={idx} style={globalStyles.contactCard}>
+                  <View style={globalStyles.contactInfo}>
+                    <Text style={globalStyles.contactName}>{contact.name}</Text>
+                    <Text style={globalStyles.contactPhone}>
                       <Ionicons name="call-outline" size={13} /> {contact.phone}
                     </Text>
                   </View>
                   <TouchableOpacity
-                    style={styles.callButton}
+                    style={globalStyles.callButton}
                     onPress={() => makeCall(contact.phone)}
                   >
                     <Ionicons name="call" size={14} color="#fff" />
-                    <Text style={styles.callButtonText}>কল</Text>
+                    <Text style={globalStyles.callButtonText}>কল</Text>
                   </TouchableOpacity>
                 </View>
               ))
             )}
           </View>
         ) : (
-          <View style={styles.gridSection}>
-            <Text style={styles.sectionTitle}>জরুরী সেবাসমূহ</Text>
-            <View style={styles.gridContainer}>
+          <View style={globalStyles.gridSection}>
+            <Text style={globalStyles.sectionTitle}>জরুরী সেবাসমূহ</Text>
+            <View style={globalStyles.gridContainer}>
               {categories.map((item) => (
                 <TouchableOpacity
                   key={item.id}
                   style={[
-                    styles.gridCard,
+                    globalStyles.gridCard,
                     (item.id === "7" ||
                       item.id === "8" ||
                       item.id === "9" ||
@@ -378,7 +372,7 @@ function HomeScreen({ navigation }: any) {
                     if (item.id === "9") {
                       navigation.navigate("Complaint");
                     } else if (item.id === "10") {
-                      navigation.navigate("Links"); // ১০ নম্বর হলে লিঙ্ক স্ক্রিনে যাবে
+                      navigation.navigate("Links");
                     } else {
                       navigation.navigate("Details", {
                         categoryId: item.id,
@@ -390,7 +384,7 @@ function HomeScreen({ navigation }: any) {
                 >
                   <View
                     style={[
-                      styles.iconContainer,
+                      globalStyles.iconContainer,
                       { backgroundColor: item.color + "15" },
                     ]}
                   >
@@ -400,13 +394,22 @@ function HomeScreen({ navigation }: any) {
                       color={item.color}
                     />
                   </View>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={globalStyles.cardTitle}>{item.title}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
         )}
       </ScrollView>
+
+      <LoginModal
+        show={showLoginModal}
+        name={userName}
+        setName={setUserName}
+        phone={userPhone}
+        setPhone={setUserPhone}
+        onLogin={handleModalLogin}
+      />
     </SafeAreaView>
   );
 }
@@ -416,39 +419,39 @@ function DetailsScreen({ route, navigation }: any) {
   const { categoryId, categoryTitle, color } = route.params;
   const contacts = contactsData[categoryId] || [];
   const [selectedGroup, setSelectedGroup] = useState("সব");
-
   const filteredContacts =
     categoryId === "7" && selectedGroup !== "সব"
       ? contacts.filter((c) => c.group === selectedGroup)
       : contacts;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={globalStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor={color} />
-
-      <View style={[styles.detailsHeader, { backgroundColor: color }]}>
+      <View style={[globalStyles.detailsHeader, { backgroundColor: color }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          style={globalStyles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text style={styles.detailsHeaderTitle}>{categoryTitle} ডিরেক্টরি</Text>
+        <Text style={globalStyles.detailsHeaderTitle}>
+          {categoryTitle} ডিরেক্টরি
+        </Text>
         <View style={{ width: 24 }} />
       </View>
 
       {categoryId === "7" && (
-        <View style={styles.filterWrapper}>
+        <View style={globalStyles.filterWrapper}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filterScroll}
+            contentContainerStyle={globalStyles.filterScroll}
           >
             {bloodGroups.map((group) => (
               <TouchableOpacity
                 key={group}
                 style={[
-                  styles.filterChip,
+                  globalStyles.filterChip,
                   selectedGroup === group
                     ? { backgroundColor: color }
                     : { backgroundColor: "#f1f5f9" },
@@ -457,7 +460,7 @@ function DetailsScreen({ route, navigation }: any) {
               >
                 <Text
                   style={[
-                    styles.filterChipText,
+                    globalStyles.filterChipText,
                     selectedGroup === group
                       ? { color: "#fff" }
                       : { color: "#475569" },
@@ -472,15 +475,17 @@ function DetailsScreen({ route, navigation }: any) {
       )}
 
       <ScrollView
-        style={styles.scrollView}
+        style={globalStyles.scrollView}
         contentContainerStyle={{ padding: 20 }}
       >
         {filteredContacts.length === 0 ? (
-          <Text style={styles.emptyText}>কোনো নম্বর খুঁজে পাওয়া যায়নি।</Text>
+          <Text style={globalStyles.emptyText}>
+            কোনো নম্বর খুঁজে পাওয়া যায়নি।
+          </Text>
         ) : (
           filteredContacts.map((contact, index) => (
-            <View key={index} style={styles.contactCard}>
-              <View style={styles.contactInfo}>
+            <View key={index} style={globalStyles.contactCard}>
+              <View style={globalStyles.contactInfo}>
                 <View
                   style={{
                     flexDirection: "row",
@@ -488,15 +493,17 @@ function DetailsScreen({ route, navigation }: any) {
                     flexWrap: "wrap",
                   }}
                 >
-                  <Text style={styles.contactName}>{contact.name}</Text>
+                  <Text style={globalStyles.contactName}>{contact.name}</Text>
                   {contact.group && (
                     <View
                       style={[
-                        styles.badgeContainer,
+                        globalStyles.badgeContainer,
                         { backgroundColor: color + "15" },
                       ]}
                     >
-                      <Text style={[styles.badgeTextStyled, { color: color }]}>
+                      <Text
+                        style={[globalStyles.badgeTextStyled, { color: color }]}
+                      >
                         {contact.group}
                       </Text>
                     </View>
@@ -504,29 +511,31 @@ function DetailsScreen({ route, navigation }: any) {
                   {contact.designation && (
                     <View
                       style={[
-                        styles.badgeContainer,
+                        globalStyles.badgeContainer,
                         { backgroundColor: color + "15" },
                       ]}
                     >
-                      <Text style={[styles.badgeTextStyled, { color: color }]}>
+                      <Text
+                        style={[globalStyles.badgeTextStyled, { color: color }]}
+                      >
                         {contact.designation}
                       </Text>
                     </View>
                   )}
                 </View>
-                <Text style={[styles.contactPhone, { color: color }]}>
+                <Text style={[globalStyles.contactPhone, { color: color }]}>
                   <Ionicons name="call-outline" size={13} /> {contact.phone}
                 </Text>
                 {contact.sub && (
-                  <Text style={styles.contactSub}>{contact.sub}</Text>
+                  <Text style={globalStyles.contactSub}>{contact.sub}</Text>
                 )}
               </View>
               <TouchableOpacity
-                style={[styles.callButton, { backgroundColor: color }]}
+                style={[globalStyles.callButton, { backgroundColor: color }]}
                 onPress={() => makeCall(contact.phone)}
               >
                 <Ionicons name="call" size={14} color="#ffffff" />
-                <Text style={styles.callButtonText}>কল করুন</Text>
+                <Text style={globalStyles.callButtonText}>কল করুন</Text>
               </TouchableOpacity>
             </View>
           ))
@@ -541,7 +550,6 @@ function ComplaintScreen({ navigation }: any) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [message, setMessage] = useState("");
-
   const sendComplaint = () => {
     if (!name.trim() || !phone.trim() || !message.trim()) {
       Alert.alert("ত্রুটি", "অনুগ্রহ করে সবগুলো তথ্য পূরণ করুন।");
@@ -550,7 +558,6 @@ function ComplaintScreen({ navigation }: any) {
     const adminWhatsAppNumber = "8801711111111";
     const formattedText = `📝 *নতুন অভিযোগ/মতামত*\n\n👤 *নাম:* ${name}\n📞 *মোবাইল:* ${phone}\n💬 *বার্তা:* ${message}`;
     const url = `whatsapp://send?phone=${adminWhatsAppNumber}&text=${encodeURIComponent(formattedText)}`;
-
     Linking.canOpenURL(url)
       .then((supported) => {
         if (supported) return Linking.openURL(url);
@@ -560,46 +567,48 @@ function ComplaintScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={globalStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#a855f7" />
-      <View style={[styles.detailsHeader, { backgroundColor: "#a855f7" }]}>
+      <View
+        style={[globalStyles.detailsHeader, { backgroundColor: "#a855f7" }]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          style={globalStyles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text style={styles.detailsHeaderTitle}>অভিযোগ ও মতামত বক্স</Text>
+        <Text style={globalStyles.detailsHeaderTitle}>অভিযোগ ও মতামত বক্স</Text>
         <View style={{ width: 24 }} />
       </View>
       <ScrollView
-        style={styles.scrollView}
+        style={globalStyles.scrollView}
         contentContainerStyle={{ padding: 20 }}
       >
-        <View style={styles.formCard}>
-          <Text style={styles.formInstruction}>
+        <View style={globalStyles.formCard}>
+          <Text style={globalStyles.formInstruction}>
             সফাপুর ইউনিয়নের সার্বিক উন্নয়নে আপনার যেকোনো অভিযোগ সরাসরি আমাদের
             জানান।
           </Text>
-          <Text style={styles.inputLabel}>আপনার নাম</Text>
+          <Text style={globalStyles.complaintInputLabel}>আপনার নাম</Text>
           <TextInput
-            style={styles.formInput}
+            style={globalStyles.complaintFormInput}
             placeholder="এখানে আপনার নাম লিখুন"
             value={name}
             onChangeText={setName}
           />
-          <Text style={styles.inputLabel}>মোবাইল নম্বর</Text>
+          <Text style={globalStyles.complaintInputLabel}>মোবাইল নম্বর</Text>
           <TextInput
-            style={styles.formInput}
+            style={globalStyles.complaintFormInput}
             placeholder="এখানে আপনার মোবাইল নম্বর লিখুন"
             keyboardType="phone-pad"
             value={phone}
             onChangeText={setPhone}
           />
-          <Text style={styles.inputLabel}>অভিযোগ বা বিবরণ</Text>
+          <Text style={globalStyles.complaintInputLabel}>অভিযোগ বা বিবরণ</Text>
           <TextInput
             style={[
-              styles.formInput,
+              globalStyles.complaintFormInput,
               { height: 120, textAlignVertical: "top" },
             ]}
             placeholder="আপনার সমস্যাটি বিস্তারিত লিখুন..."
@@ -608,9 +617,14 @@ function ComplaintScreen({ navigation }: any) {
             value={message}
             onChangeText={setMessage}
           />
-          <TouchableOpacity style={styles.submitButton} onPress={sendComplaint}>
+          <TouchableOpacity
+            style={globalStyles.complaintSubmitButton}
+            onPress={sendComplaint}
+          >
             <Ionicons name="paper-plane" size={18} color="#fff" />
-            <Text style={styles.submitButtonText}>হোয়াটসঅ্যাপে জমা দিন</Text>
+            <Text style={globalStyles.complaintSubmitButtonText}>
+              হোয়াটসঅ্যাপে জমা দিন
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -618,40 +632,41 @@ function ComplaintScreen({ navigation }: any) {
   );
 }
 
-// 🌐 ৪. নতুন গুরুত্বপূর্ণ লিঙ্ক স্ক্রিন কম্পোনেন্ট
+// 🌐 ৪. গুরুত্বপূর্ণ লিঙ্ক স্ক্রিন কম্পোনেন্ট
 function LinksScreen({ navigation }: any) {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={globalStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0d9488" />
-
-      <View style={[styles.detailsHeader, { backgroundColor: "#0d9488" }]}>
+      <View
+        style={[globalStyles.detailsHeader, { backgroundColor: "#0d9488" }]}
+      >
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
+          style={globalStyles.backButton}
         >
           <Ionicons name="arrow-back" size={24} color="#ffffff" />
         </TouchableOpacity>
-        <Text style={styles.detailsHeaderTitle}>গুরুত্বপূর্ণ লিঙ্কসমূহ</Text>
+        <Text style={globalStyles.detailsHeaderTitle}>
+          গুরুত্বপূর্ণ লিঙ্কসমূহ
+        </Text>
         <View style={{ width: 24 }} />
       </View>
-
       <ScrollView
-        style={styles.scrollView}
+        style={globalStyles.scrollView}
         contentContainerStyle={{ padding: 20 }}
       >
         {importantLinks.map((link, index) => (
-          <View key={index} style={styles.contactCard}>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactName}>{link.title}</Text>
-              <Text style={styles.contactSub}>{link.sub}</Text>
+          <View key={index} style={globalStyles.contactCard}>
+            <View style={globalStyles.contactInfo}>
+              <Text style={globalStyles.contactName}>{link.title}</Text>
+              <Text style={globalStyles.contactSub}>{link.sub}</Text>
             </View>
-
             <TouchableOpacity
-              style={[styles.callButton, { backgroundColor: "#0d9488" }]}
+              style={[globalStyles.callButton, { backgroundColor: "#0d9488" }]}
               onPress={() => openWebsite(link.url)}
             >
               <Ionicons name="globe-outline" size={14} color="#ffffff" />
-              <Text style={styles.callButtonText}>ওপেন</Text>
+              <Text style={globalStyles.callButtonText}>ওপেন</Text>
             </TouchableOpacity>
           </View>
         ))}
@@ -659,226 +674,3 @@ function LinksScreen({ navigation }: any) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
-  scrollView: { flex: 1 },
-  headerContainer: {
-    backgroundColor: "#059669",
-    paddingTop: 25,
-    paddingBottom: 35,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-    alignItems: "center",
-    elevation: 5,
-  },
-  subTitle: {
-    color: "#a7f3d0",
-    fontSize: 13,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  mainTitle: {
-    color: "#ffffff",
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 14,
-  },
-  badge: {
-    backgroundColor: "rgba(255, 255, 255, 0.22)",
-    paddingVertical: 6,
-    paddingHorizontal: 18,
-    borderRadius: 50,
-  },
-  badgeText: { color: "#ffffff", fontSize: 13, fontWeight: "700" },
-  noticeContainer: {
-    flexDirection: "row",
-    backgroundColor: "#fef2f2",
-    borderBottomWidth: 1,
-    borderBottomColor: "#fee2e2",
-    alignItems: "center",
-    height: 40,
-    overflow: "hidden",
-  },
-  noticeLabel: {
-    backgroundColor: "#ef4444",
-    paddingHorizontal: 12,
-    height: "100%",
-    justifyContent: "center",
-    zIndex: 10,
-  },
-  noticeLabelText: { color: "#ffffff", fontSize: 12, fontWeight: "bold" },
-  noticeScrollArea: { flex: 1, justifyContent: "center", width: "100%" },
-  noticeText: { color: "#dc2626", fontSize: 13, fontWeight: "600", width: 900 },
-  searchSection: { paddingHorizontal: 20, marginTop: -20, zIndex: 1 },
-  searchContainer: {
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    alignItems: "center",
-    paddingHorizontal: 15,
-    borderRadius: 16,
-    height: 54,
-    elevation: 3,
-  },
-  searchIcon: { marginRight: 10 },
-  input: { flex: 1, color: "#1e293b", fontSize: 15 },
-  gridSection: { paddingHorizontal: 20, marginTop: 25 },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 15,
-    paddingLeft: 2,
-  },
-  gridContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  gridCard: {
-    backgroundColor: "#ffffff",
-    width: "48%",
-    borderRadius: 20,
-    paddingVertical: 18,
-    paddingHorizontal: 12,
-    alignItems: "center",
-    marginBottom: 12,
-    elevation: 1,
-  },
-  iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 50,
-    alignItems: "center",
-    marginBottom: 10,
-    justifyContent: "center",
-  },
-  cardTitle: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#334155",
-    textAlign: "center",
-  },
-  listSection: { paddingHorizontal: 20, marginTop: 20 },
-  contactCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 12,
-    elevation: 1,
-  },
-  contactInfo: { flex: 1, marginRight: 10 },
-  contactName: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "#1e293b",
-    marginBottom: 4,
-  },
-  contactPhone: { fontSize: 14, fontWeight: "600", marginBottom: 2 },
-  contactSub: { fontSize: 12, color: "#64748b" },
-  callButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-  },
-  callButtonText: {
-    color: "#ffffff",
-    fontSize: 13,
-    fontWeight: "700",
-    marginLeft: 6,
-  },
-  emptyText: {
-    color: "#94a3b8",
-    fontSize: 14,
-    textAlign: "center",
-    marginTop: 20,
-  },
-  detailsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 15,
-    paddingTop: 15,
-    paddingBottom: 15,
-    elevation: 4,
-  },
-  backButton: { padding: 5 },
-  detailsHeaderTitle: { color: "#ffffff", fontSize: 18, fontWeight: "bold" },
-  filterWrapper: {
-    backgroundColor: "#ffffff",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
-  },
-  filterScroll: { paddingHorizontal: 15, gap: 8 },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  filterChipText: { fontSize: 13, fontWeight: "700" },
-  badgeContainer: {
-    marginLeft: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    marginTop: 2,
-  },
-  badgeTextStyled: { fontSize: 11, fontWeight: "bold" },
-  formCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: 20,
-    padding: 20,
-    elevation: 2,
-    marginBottom: 20,
-  },
-  formInstruction: {
-    fontSize: 14,
-    color: "#475569",
-    lineHeight: 22,
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1e293b",
-    marginBottom: 8,
-    paddingLeft: 2,
-  },
-  formInput: {
-    backgroundColor: "#f8fafc",
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: "#1e293b",
-    marginBottom: 18,
-  },
-  submitButton: {
-    backgroundColor: "#a855f7",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 14,
-    borderRadius: 14,
-    marginTop: 10,
-    elevation: 2,
-  },
-  submitButtonText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
-});
