@@ -8,22 +8,13 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-// 🟢 প্রপস ইন্টারফেস যোগ করা হলো নেভিগেশন হ্যান্ডেল করার জন্য
-interface HeaderSectionProps {
-  animatedValue: any;
-  noticeText: string;
-  onMenuPress: () => void;
-  userName: string;
-  navigation: any; // নেভিগেশন প্রপ্স
-}
-
 export default function HeaderSection({
   animatedValue,
   noticeText,
   onMenuPress,
   userName,
   navigation,
-}: HeaderSectionProps) {
+}: any) {
   return (
     <View style={styles.headerMainWrapper}>
       {/* নোটিশ বোর্ড সেকশন */}
@@ -49,23 +40,22 @@ export default function HeaderSection({
 
         <Text style={styles.appTitle}>সফাপুর ইউপি জরুরী সেবা</Text>
 
-        {/* 🟢 প্রোফাইল আইকনে ক্লিক ইভেন্ট যুক্ত করা হলো */}
+        {/* প্রোফাইল আইকন */}
         <TouchableOpacity
           style={styles.smallAvatar}
           onPress={() => navigation.navigate("Profile")}
         >
           <Text style={styles.smallAvatarText}>
-            {userName && userName.length > 0 ? userName[0].toUpperCase() : "u"}
+            {userName && userName.length > 0 ? userName[0].toLowerCase() : "u"}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {/* সাব হেডার ব্যানার */}
+      {/* সাব হেডার ব্যানার (এখানে "জরুরী প্রয়োজনে সরাসরি কল করুন" অংশটি বাদ দেওয়া হয়েছে) */}
       <View style={styles.bannerSection}>
         <Text style={styles.bannerSub}>
           বিপদে আপদে তাৎক্ষণিক সহায়তার বিশ্বস্ত অফলাইন ডিরেক্টরি
         </Text>
-        <Text style={styles.bannerMain}>জরুরি প্রয়োজনে সরাসরি কল করুন</Text>
       </View>
     </View>
   );
@@ -125,13 +115,5 @@ const styles = StyleSheet.create({
     color: "#a7f3d0",
     fontSize: 13,
     textAlign: "center",
-    marginBottom: 8,
-  },
-  bannerMain: {
-    color: "#fef08a",
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    lineHeight: 34,
   },
 });
