@@ -1,48 +1,42 @@
 import React, { useState } from "react";
-import { StatusBar, ScrollView, Alert, Linking } from "react-native";
+import { StatusBar, ScrollView, View, Linking, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-// 📦 গ্লোবাল রিসোর্স এবং কাস্টম কম্পোনেন্টসমূহ
-import { globalStyles } from "./src/components/styles/globalStyles";
-import LoginModal from "./src/components/LoginModal";
-import AdminLoginModal from "./src/components/AdminLoginModal";
+// ইমপোর্টসমূহ
+import ProfileScreen from "./src/screens/ProfileScreen";
 import HeaderSection from "./src/components/HeaderSection";
 import SearchBarSection from "./src/components/SearchBarSection";
 import GridOrListSection from "./src/components/GridOrListSection";
 import SideDrawer from "./src/components/SideDrawer";
-import { categories } from "./src/components/contactsData";
-
-// 🖥️ স্ক্রিনসমূহ
+import LoginModal from "./src/components/LoginModal";
+import AdminLoginModal from "./src/components/AdminLoginModal";
 import GuideScreen from "./src/screens/GuideScreen";
 import DetailsScreen from "./src/screens/DetailsScreen";
 import ComplaintScreen from "./src/screens/ComplaintScreen";
 import LinksScreen from "./src/screens/LinksScreen";
-import ProfileScreen from "./src/screens/ProfileScreen"; // 🟢 প্রোফাইল স্ক্রিন ইমপোর্ট
-
-// 🪝 কাস্টম হুক
+import { categories } from "./src/components/contactsData";
+import { globalStyles } from "./src/components/styles/globalStyles";
 import useHomeScreen from "./src/hooks/useHomeScreen";
 
+const Stack = createNativeStackNavigator();
+
+// কল করার ফাংশন
 const makeCall = (phoneNumber: string) => {
   const url = `tel:${phoneNumber}`;
-  Linking.canOpenURL(url)
-    .then((supported) => {
-      if (!supported) {
-        Alert.alert("দুঃখিত", "এই ডিভাইস থেকে কল করা সম্ভব নয়।");
-      } else {
-        return Linking.openURL(url);
-      }
-    })
-    .catch((err) => console.error("Call Error:", err));
+  Linking.canOpenURL(url).then((supported) => {
+    if (!supported) {
+      Alert.alert("দুঃখিত", "এই ডিভাইস থেকে কল করা সম্ভব নয়।");
+    } else {
+      Linking.openURL(url);
+    }
+  });
 };
-
-const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      {/* 🟢 Stack.Navigator এর ভেতরেই সব স্ক্রিন থাকতে হবে */}
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
@@ -55,7 +49,6 @@ export default function App() {
   );
 }
 
-// 🏠 মূল হোম স্ক্রিন
 function HomeScreen({ navigation }: any) {
   const {
     searchQuery,
@@ -75,15 +68,11 @@ function HomeScreen({ navigation }: any) {
 
   const [showAdminModal, setShowAdminModal] = useState(false);
 
-  const handleAdminSuccess = () => {
-    setShowAdminModal(false);
-    Alert.alert("অভিনন্দন", "অ্যাডমিন ভেরিফিকেশন সফল হয়েছে!");
-  };
-
   return (
     <SafeAreaView style={globalStyles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#059669" />
 
+      {/* ১. হেডার */}
       <HeaderSection
         animatedValue={animatedValue}
         noticeText={noticeText}
@@ -92,12 +81,16 @@ function HomeScreen({ navigation }: any) {
         navigation={navigation}
       />
 
-      <ScrollView style={globalStyles.scrollView} bounces={false}>
+      {/* ২. ফিক্সড সার্চ বার */}
+      <View style={{ backgroundColor: "#fff", paddingVertical: 5 }}>
         <SearchBarSection
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
+      </View>
 
+      {/* ৩. স্ক্রলযোগ্য কনটেন্ট */}
+      <ScrollView style={globalStyles.scrollView} bounces={false}>
         <GridOrListSection
           searchQuery={searchQuery}
           filteredContacts={filteredContacts}
@@ -107,6 +100,7 @@ function HomeScreen({ navigation }: any) {
         />
       </ScrollView>
 
+      {/* ড্রয়ার ও মডাল */}
       <SideDrawer
         show={showDrawer}
         onClose={() => setShowDrawer(false)}
@@ -117,7 +111,6 @@ function HomeScreen({ navigation }: any) {
           setShowAdminModal(true);
         }}
       />
-
       <LoginModal
         show={showLoginModal}
         name={userName}
@@ -126,11 +119,10 @@ function HomeScreen({ navigation }: any) {
         setPhone={setUserPhone}
         onLogin={handleModalLogin}
       />
-
       <AdminLoginModal
         show={showAdminModal}
         onClose={() => setShowAdminModal(false)}
-        onVerifySuccess={handleAdminSuccess}
+        onVerifySuccess={() => setShowAdminModal(false)}
       />
     </SafeAreaView>
   );
